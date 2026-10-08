@@ -76,7 +76,7 @@
   if (header) {
     const onScroll = function () {
       if (window.scrollY > 8) {
-        header.style.boxShadow = "0 4px 20px rgba(42,42,46,0.06)";
+        header.style.boxShadow = "0 4px 20px rgba(26,24,21,0.06)";
       } else {
         header.style.boxShadow = "none";
       }
