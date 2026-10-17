@@ -1,0 +1,9 @@
+# robots.txt for https://sulcascarpets.com/
+# Crawling is allowed. While the site is on temporary github.io / pages.dev
+# addresses, indexing is blocked by the <meta name="robots" content="noindex">
+# tag in index.html (remove it once sulcascarpets.com is connected).
+User-agent: *
+Allow: /
+# Disallow: /
+
+Sitemap: https://sulcascarpets.com/sitemap.xml

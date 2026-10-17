@@ -29,7 +29,7 @@
     });
   }
 
-  /* Demo estimate form */
+  /* Estimate form: opens the visitor's email app with the request addressed to the showroom */
   if (form && toast) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -50,6 +50,22 @@
         if (firstBad) firstBad.focus();
         return;
       }
+
+      const data = new FormData(form);
+      const get = function (k) { return String(data.get(k) || "").trim(); };
+      const subject = "Estimate request: " + get("project") + " - " + get("name");
+      const body = [
+        "Name: " + get("name"),
+        "Phone: " + get("phone"),
+        "Email: " + get("email"),
+        "Project type: " + get("project"),
+        "",
+        get("message")
+      ].join("\n");
+
+      window.location.href = "mailto:CUSTOMFLOORS@SULCASCARPETS.COM" +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
 
       showToast();
       form.reset();
