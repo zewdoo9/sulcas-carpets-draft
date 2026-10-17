@@ -326,6 +326,33 @@ p:last-child { margin-bottom: 0; }
   background: var(--forest);
 }
 
+.hero-badge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  margin: 0 0 1.4rem;
+}
+.hero-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--forest-deep);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(63,107,78,0.25);
+}
+.hero-badge-pill svg { color: #e8c766; flex: none; }
+.hero-badge-since {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--forest-deep);
+}
+
 .hero h1 {
   font-size: clamp(2.5rem, 8.5vw, 4.15rem);
   font-weight: 600;
@@ -446,7 +473,8 @@ p:last-child { margin-bottom: 0; }
   .hero-arch { border-radius: 160px 160px 14px 14px; }
   .hero-rating { min-width: 0; padding: 0.8rem 1rem; }
   .hero-rating strong { font-size: 1.25rem; }
-  .hero-eyebrow { letter-spacing: 0.1em; font-size: 0.68rem; }
+  .hero-badge-pill { font-size: 0.85rem; padding: 0.45rem 0.85rem; }
+  .hero-badge-since { font-size: 0.8rem; }
 }
 
 @media (min-width: 821px) {
