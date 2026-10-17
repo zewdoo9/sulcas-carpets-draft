@@ -1,3 +1,8 @@
+/* ============================================================
+   Estimate form recipient (FormSubmit). One-line swap at handoff.
+   ============================================================ */
+const FORM_RECIPIENT = "zewdoo9@gmail.com"; // switch to Cain's email at handoff
+
 (function () {
   "use strict";
 
@@ -29,8 +34,15 @@
     });
   }
 
-  /* Estimate form: opens the visitor's email app with the request addressed to the showroom */
+  /* Estimate form: sends via FormSubmit AJAX to FORM_RECIPIENT */
+  const SUCCESS_MSG = "Thanks! We received your request and will contact you soon.";
+  const ERROR_MSG = "Something went wrong — please call (916) 686-1704.";
+
   if (form && toast) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitLabel = submitBtn ? submitBtn.textContent : "";
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -39,7 +51,8 @@
 
       required.forEach(function (field) {
         field.classList.remove("is-invalid");
-        if (!field.value.trim()) {
+        const v = field.value.trim();
+        if (!v || (field.type === "email" && !emailRe.test(v))) {
           field.classList.add("is-invalid");
           valid = false;
         }
@@ -51,29 +64,66 @@
         return;
       }
 
-      const data = new FormData(form);
-      const get = function (k) { return String(data.get(k) || "").trim(); };
-      const subject = "Estimate request: " + get("project") + " - " + get("name");
-      const body = [
-        "Name: " + get("name"),
-        "Phone: " + get("phone"),
-        "Email: " + get("email"),
-        "Project type: " + get("project"),
-        "",
-        get("message")
-      ].join("\n");
+      const val = function (n) {
+        const el = form.elements[n];
+        return el ? String(el.value || "").trim() : "";
+      };
 
-      window.location.href = "mailto:CUSTOMFLOORS@SULCASCARPETS.COM" +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
+      // Honeypot: bots fill hidden fields, real visitors never see it. Pretend success, send nothing.
+      if (val("_honey")) {
+        showToast(SUCCESS_MSG, false);
+        form.reset();
+        return;
+      }
 
-      showToast();
-      form.reset();
+      const payload = {
+        name: val("name"),
+        phone: val("phone"),
+        email: val("email"), // FormSubmit uses this as the reply-to address
+        project: val("project"),
+        message: val("message"),
+        _subject: "New estimate request — Sulca's Carpets website",
+        _template: "table",
+        _captcha: "false"
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending…";
+      }
+
+      fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_RECIPIENT), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (data) {
+            const ok = res.ok && (data.success === true || data.success === "true");
+            if (!ok) throw new Error((data && data.message) || "Request failed");
+            return data;
+          });
+        })
+        .then(function () {
+          showToast(SUCCESS_MSG, false);
+          form.reset();
+        })
+        .catch(function () {
+          showToast(ERROR_MSG, true);
+        })
+        .finally(function () {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitLabel;
+          }
+        });
     });
   }
 
-  function showToast() {
+  function showToast(message, isError) {
     clearTimeout(toastTimer);
+    if (message) toast.textContent = message;
+    toast.classList.toggle("is-error", !!isError);
     toast.hidden = false;
     // force reflow so transition runs
     void toast.offsetWidth;

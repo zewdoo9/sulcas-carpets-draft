@@ -978,3 +978,16 @@ p:last-child { margin-bottom: 0; }
     animation-duration: 0.01ms !important;
   }
 }
+
+/* —— Estimate form extras —— */
+.form-honey {
+  position: absolute !important;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.estimate-form { position: relative; }
+.estimate-form .req { color: var(--forest-deep); }
+.estimate-form button[disabled] { opacity: 0.65; cursor: progress; }
+.toast.is-error { background: #8a2f2f; }

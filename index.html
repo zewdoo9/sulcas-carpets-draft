@@ -260,7 +260,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=seo1" />
+  <link rel="stylesheet" href="styles.css?v=form1" />
 </head>
 <body>
   <!-- Sticky header -->
@@ -681,23 +681,28 @@
 
           <form class="estimate-form" id="estimateForm" novalidate>
             <h3>Request an estimate</h3>
-            <p class="form-note">Submitting opens your email app with your request addressed to our showroom. Prefer to talk? Call (916) 686-1704.</p>
+            <p class="form-note">Send us a few details and we’ll contact you to schedule your free in-home estimate. Prefer to talk? Call (916) 686-1704.</p>
+
+            <!-- Spam honeypot: hidden from real visitors; if filled, the request is not sent -->
+            <div class="form-honey" aria-hidden="true">
+              <label>Leave this field empty <input type="text" name="_honey" tabindex="-1" autocomplete="off" /></label>
+            </div>
 
             <label>
-              Name
-              <input type="text" name="name" required autocomplete="name" placeholder="Your name" />
+              <span>Name <span class="req" aria-hidden="true">*</span></span>
+              <input type="text" name="name" required aria-required="true" autocomplete="name" placeholder="Your name" />
             </label>
             <label>
-              Phone
-              <input type="tel" name="phone" required autocomplete="tel" placeholder="(916) 555-0100" />
+              <span>Phone <span class="req" aria-hidden="true">*</span></span>
+              <input type="tel" name="phone" required aria-required="true" autocomplete="tel" placeholder="Best number to reach you" />
             </label>
             <label>
-              Email
-              <input type="email" name="email" required autocomplete="email" placeholder="you@email.com" />
+              <span>Email <span class="req" aria-hidden="true">*</span></span>
+              <input type="email" name="email" required aria-required="true" autocomplete="email" placeholder="you@email.com" />
             </label>
             <label>
-              Project type
-              <select name="project" required>
+              <span>Project type <span class="req" aria-hidden="true">*</span></span>
+              <select name="project" required aria-required="true">
                 <option value="">Select…</option>
                 <option>Carpet</option>
                 <option>Hardwood</option>
@@ -713,7 +718,7 @@
               Message
               <textarea name="message" rows="4" placeholder="Rooms, timing, or questions…"></textarea>
             </label>
-            <button type="submit" class="btn btn-primary btn-block">Send request</button>
+            <button type="submit" class="btn btn-primary btn-block" id="estimateSubmit">Send request</button>
           </form>
         </div>
       </div>
@@ -741,10 +746,10 @@
 
   <!-- Toast -->
   <div class="toast" id="toast" role="status" aria-live="polite" hidden>
-    Thanks! Your email app should open with your request. If it doesn’t, call (916) 686-1704 or email CUSTOMFLOORS@SULCASCARPETS.COM.
+    Thanks! We received your request and will contact you soon.
   </div>
 
   <script async src="https://www.instagram.com/embed.js"></script>
-  <script src="script.js?v=seo1"></script>
+  <script src="script.js?v=form1"></script>
 </body>
 </html>
