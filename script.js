@@ -26,7 +26,7 @@ const FORM_SITE_URL = "https://sulcas-carpets.pages.dev/";
 
   const navToggle = document.getElementById("navToggle");
   const mobileNav = document.getElementById("mobileNav");
-  // Every estimate form on the page (full contact form + hero quick card) shares one submit flow.
+  // Binds the shared FormSubmit flow to each estimate form that exists on the page (currently only #estimateForm in #contact).
   const forms = document.querySelectorAll("form.js-estimate-form");
   const toast = document.getElementById("toast");
   let toastTimer;
