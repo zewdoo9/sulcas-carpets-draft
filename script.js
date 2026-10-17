@@ -1,7 +1,25 @@
 /* ============================================================
-   Estimate form recipient (FormSubmit). One-line swap at handoff.
+   Estimate form settings (FormSubmit)
    ============================================================ */
-const FORM_RECIPIENT = "zewdoo9@gmail.com"; // switch to Cain's email at handoff
+
+// Recipient: an email address OR the random-string alias FormSubmit gives you after
+// activation (e.g. "a1b2c3d4e5f6..."). Paste the alias here once you have it.
+// Switch to Cain's email/alias at handoff (that needs one new activation).
+const FORM_RECIPIENT = "zewdoo9@gmail.com";
+
+// The one page URL FormSubmit sees for every submission, whatever host the page is opened on
+// (pages.dev, a deploy-hash preview, github.io). FormSubmit treats each recipient + page URL as a
+// separate "form" needing its own activation, so keeping this fixed means one activation covers all hosts.
+// Change to "https://sulcascarpets.com/" when the domain is connected (expect one re-activation).
+const FORM_SITE_URL = "https://sulcas-carpets.pages.dev/";
+
+/* Deploy-hash preview hosts (e.g. 68deee40.sulcas-carpets.pages.dev) -> main Pages host */
+(function () {
+  var h = window.location.hostname;
+  if (/^[0-9a-f]{6,}\.sulcas-carpets\.pages\.dev$/i.test(h)) {
+    window.location.replace("https://sulcas-carpets.pages.dev" + window.location.pathname + window.location.search + window.location.hash);
+  }
+})();
 
 (function () {
   "use strict";
@@ -84,7 +102,8 @@ const FORM_RECIPIENT = "zewdoo9@gmail.com"; // switch to Cain's email at handoff
         message: val("message"),
         _subject: "New estimate request — Sulca's Carpets website",
         _template: "table",
-        _captcha: "false"
+        _captcha: "false",
+        _url: FORM_SITE_URL // fixed form identity for FormSubmit (instead of whatever Referer the host sends)
       };
 
       if (submitBtn) {
@@ -95,6 +114,7 @@ const FORM_RECIPIENT = "zewdoo9@gmail.com"; // switch to Cain's email at handoff
       fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_RECIPIENT), {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
+        referrerPolicy: "strict-origin-when-cross-origin", // never blank, never includes ?query strings
         body: JSON.stringify(payload)
       })
         .then(function (res) {
