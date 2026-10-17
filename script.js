@@ -26,7 +26,8 @@ const FORM_SITE_URL = "https://sulcas-carpets.pages.dev/";
 
   const navToggle = document.getElementById("navToggle");
   const mobileNav = document.getElementById("mobileNav");
-  const form = document.getElementById("estimateForm");
+  // Every estimate form on the page (full contact form + hero quick card) shares one submit flow.
+  const forms = document.querySelectorAll("form.js-estimate-form");
   const toast = document.getElementById("toast");
   let toastTimer;
 
@@ -56,7 +57,9 @@ const FORM_SITE_URL = "https://sulcas-carpets.pages.dev/";
   const SUCCESS_MSG = "Thanks! We received your request and will contact you soon.";
   const ERROR_MSG = "Something went wrong — please call (916) 686-1704.";
 
-  if (form && toast) {
+  if (toast) forms.forEach(bindEstimateForm);
+
+  function bindEstimateForm(form) {
     const submitBtn = form.querySelector('button[type="submit"]');
     const submitLabel = submitBtn ? submitBtn.textContent : "";
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

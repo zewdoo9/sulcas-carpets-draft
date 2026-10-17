@@ -9,4 +9,14 @@
     <image:image><image:loc>https://sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
     <image:image><image:loc>https://sulcascarpets.com/images/logo-sulcas.png</image:loc></image:image>
   </url>
+  <url>
+    <loc>https://sulcascarpets.com/flooring.html</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
+    <image:image><image:loc>https://sulcascarpets.com/images/gallery-01.jpg</image:loc></image:image>
+    <image:image><image:loc>https://sulcascarpets.com/images/fb-01.jpg</image:loc></image:image>
+    <image:image><image:loc>https://sulcascarpets.com/images/gallery-06.jpg</image:loc></image:image>
+  </url>
 </urlset>
