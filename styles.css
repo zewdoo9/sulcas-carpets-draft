@@ -1,22 +1,22 @@
 /* Sulca’s Carpets — website styles
-   Light sage green modern theme; soft sage accents, charcoal-green text */
+   Burgundy theme matched to logo; warm cream backgrounds. */
 
 :root {
-  --cream: #f5f8f4;
-  --cream-deep: #eaf1e8;
-  --sand: #dde8da;
-  --oak: #8fae94;
-  --walnut: #4f6656;
-  --charcoal: #2a2e2b;
-  --ink: #1f2a24;
-  --forest: #5b8a6a;
-  --forest-deep: #3f6b4e;
-  --moss: #a9c6a8;
-  --gold: #4a7a5a;
+  --cream: #faf6f5;
+  --cream-deep: #f4ebe9;
+  --sand: #ead9d6;
+  --oak: #c3939a;
+  --walnut: #6b3a42;
+  --charcoal: #2e2627;
+  --ink: #2a1c20;
+  --forest: #8b1e32;
+  --forest-deep: #6a1426;
+  --moss: #dcb4ba;
+  --gold: #8b1e32;
   --white: #ffffff;
-  --muted: #5c6b60;
-  --line: rgba(63, 107, 78, 0.14);
-  --shadow: 0 12px 40px rgba(63, 107, 78, 0.10);
+  --muted: #6e5a5e;
+  --line: rgba(106, 20, 38, 0.14);
+  --shadow: 0 12px 40px rgba(106, 20, 38, 0.10);
   --radius: 14px;
   --header-h: 76px;
   --font-serif: "Cormorant Garamond", Georgia, serif;
@@ -71,7 +71,7 @@ p:last-child { margin-bottom: 0; }
   position: sticky;
   top: 0;
   z-index: 900;
-  background: rgba(245, 248, 244, 0.94);
+  background: rgba(250, 246, 245, 0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
@@ -328,7 +328,7 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.02em;
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(63,107,78,0.25);
+  box-shadow: 0 4px 14px rgba(106,20,38,0.25);
 }
 .hero-badge-pill svg { color: #e8c766; flex: none; }
 .hero-badge-since {
@@ -437,7 +437,7 @@ p:last-child { margin-bottom: 0; }
   border-radius: 10px;
   padding: 1rem 1.15rem;
   min-width: 170px;
-  box-shadow: 0 18px 40px rgba(31, 42, 36, 0.16);
+  box-shadow: 0 18px 40px rgba(42, 28, 32, 0.16);
 }
 .hero-stars {
   color: var(--forest);
@@ -583,7 +583,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .service-card-cta h3 { color: var(--white); }
-.service-card-cta p { color: rgba(245, 248, 244, 0.8); margin-bottom: 1rem; }
+.service-card-cta p { color: rgba(250, 246, 245, 0.8); margin-bottom: 1rem; }
 .service-card-cta .btn-primary {
   background: var(--cream);
   color: var(--forest-deep);
@@ -849,7 +849,7 @@ p:last-child { margin-bottom: 0; }
 .estimate-form textarea:focus {
   outline: none;
   border-color: var(--forest);
-  box-shadow: 0 0 0 3px rgba(91, 138, 106, 0.25);
+  box-shadow: 0 0 0 3px rgba(139, 30, 50, 0.25);
   background: var(--white);
 }
 
@@ -863,7 +863,7 @@ p:last-child { margin-bottom: 0; }
 /* —— Footer —— */
 .site-footer {
   background: var(--ink);
-  color: rgba(245, 248, 244, 0.75);
+  color: rgba(250, 246, 245, 0.75);
   padding: 2.5rem 0 2rem;
   font-size: 0.9rem;
 }
@@ -899,8 +899,8 @@ p:last-child { margin-bottom: 0; }
 
 .footer-area {
   font-size: 0.8rem;
-  color: rgba(245, 248, 244, 0.7);
-  border-top: 1px solid rgba(245, 248, 244, 0.1);
+  color: rgba(250, 246, 245, 0.7);
+  border-top: 1px solid rgba(250, 246, 245, 0.1);
   padding-top: 1.25rem;
   margin: 0;
   line-height: 1.5;
@@ -1055,7 +1055,7 @@ p:last-child { margin-bottom: 0; }
   padding: 1.6rem 0;
 }
 .trust-strip .trust-value { color: var(--white); }
-.trust-strip .trust-label { color: rgba(245, 248, 244, 0.78); }
+.trust-strip .trust-label { color: rgba(250, 246, 245, 0.78); }
 
 /* Service card links + flooring promo */
 .card-link {
@@ -1153,7 +1153,7 @@ p:last-child { margin-bottom: 0; }
   border: 1px solid var(--line);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(63, 107, 78, 0.06);
+  box-shadow: 0 10px 30px rgba(106, 20, 38, 0.06);
   scroll-margin-top: calc(var(--header-h) + 16px);
 }
 .floor-card-media img { width: 100%; height: 240px; object-fit: cover; }
@@ -1207,9 +1207,9 @@ p:last-child { margin-bottom: 0; }
 .cta-band { background: var(--forest-deep); color: var(--cream); padding: 3rem 0; }
 .cta-band-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem 2rem; }
 .cta-band h2 { color: var(--white); font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin-bottom: 0.4rem; }
-.cta-band p { margin: 0; color: rgba(245, 248, 244, 0.8); font-size: 0.92rem; }
+.cta-band p { margin: 0; color: rgba(250, 246, 245, 0.8); font-size: 0.92rem; }
 .cta-band-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .btn-light { background: var(--cream); color: var(--forest-deep); border-color: var(--cream); }
 .btn-light:hover { background: var(--white); color: var(--forest-deep); }
-.btn-outline-light { background: transparent; color: var(--cream); border-color: rgba(245, 248, 244, 0.6); }
+.btn-outline-light { background: transparent; color: var(--cream); border-color: rgba(250, 246, 245, 0.6); }
 .btn-outline-light:hover { background: var(--cream); color: var(--forest-deep); }
