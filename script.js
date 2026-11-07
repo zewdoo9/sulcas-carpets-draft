@@ -7,10 +7,9 @@
 // Switch to Cain's email/alias at handoff (that needs one new activation).
 const FORM_RECIPIENT = "zewdoo9@gmail.com";
 
-// The one page URL FormSubmit sees for every submission, whatever host the page is opened on
-// (pages.dev, a deploy-hash preview, github.io). FormSubmit treats each recipient + page URL as a
-// separate "form" needing its own activation, so keeping this fixed means one activation covers all hosts.
-// Change to "https://sulcascarpets.com/" when the domain is connected (expect one re-activation).
+// Page URL sent as FormSubmit's `_url`, so pages.dev, preview hosts, and www share one form.
+// FormSubmit can treat a new URL as a new form and email FORM_RECIPIENT an activation link.
+// This is already the live site. Leave it alone unless a new activation is intended.
 const FORM_SITE_URL = "https://www.sulcascarpets.com/";
 
 /* Deploy-hash preview hosts (e.g. 68deee40.sulcas-carpets.pages.dev) -> main Pages host */
