@@ -11,7 +11,7 @@ const FORM_RECIPIENT = "zewdoo9@gmail.com";
 // (pages.dev, a deploy-hash preview, github.io). FormSubmit treats each recipient + page URL as a
 // separate "form" needing its own activation, so keeping this fixed means one activation covers all hosts.
 // Change to "https://sulcascarpets.com/" when the domain is connected (expect one re-activation).
-const FORM_SITE_URL = "https://sulcas-carpets.pages.dev/";
+const FORM_SITE_URL = "https://www.sulcascarpets.com/";
 
 /* Deploy-hash preview hosts (e.g. 68deee40.sulcas-carpets.pages.dev) -> main Pages host */
 (function () {
@@ -181,3 +181,127 @@ window.addEventListener("load", () => {
     window.instgrm.Embeds.process();
   }
 });
+
+// Showroom 360° tour: load Google Maps iframe only on click
+(function () {
+  const btn = document.getElementById("tourStart");
+  const wrap = document.getElementById("tourWrap");
+  if (!btn || !wrap) return;
+  let loaded = false;
+  function loadTour() {
+    if (loaded) return;
+    loaded = true;
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://www.google.com/maps/embed?pb=!4v1770358368334!6m8!1m7!1sCAoSHENJQUJJaERPX0RaTGplYlNnTE9kS3RaVmZpQjg.!2m2!1d38.402998903034!2d-121.3538966241981!3f1.737208092960234!4f-11.479919715486488!5f0.4000000000000002";
+    iframe.title = "360° tour of Sulca's Carpets showroom";
+    iframe.setAttribute("allowfullscreen", "");
+    iframe.setAttribute("loading", "lazy");
+    iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+    iframe.width = "100%";
+    wrap.innerHTML = "";
+    wrap.appendChild(iframe);
+    wrap.classList.add("is-loaded");
+  }
+  // Whole poster area (including the button) starts the tour
+  wrap.addEventListener("click", loadTour);
+})();
+
+// Showroom photos: on phones show first 6, button reveals the rest (no-JS shows all)
+(function () {
+  const strip = document.getElementById("showroomStrip");
+  const more = document.getElementById("showroomMore");
+  if (!strip || !more) return;
+  const total = strip.querySelectorAll(".showroom-photo").length;
+  if (total <= 6) return;
+  strip.classList.add("is-collapsed");
+  more.hidden = false;
+  more.addEventListener("click", function () {
+    const open = more.getAttribute("aria-expanded") === "true";
+    strip.classList.toggle("is-collapsed", open);
+    more.setAttribute("aria-expanded", String(!open));
+    more.textContent = open ? "See all " + total + " photos" : "Show fewer photos";
+  });
+})();
+
+// Showroom nav jump: land on the headline so the tour cover photo is fully in view
+(function () {
+  const sec = document.getElementById("showroom");
+  if (!sec) return;
+  const target = sec.querySelector("h2") || sec;
+  function go(smooth) {
+    const header = document.querySelector(".site-header");
+    const h = header ? header.getBoundingClientRect().height : 76;
+    const y = target.getBoundingClientRect().top + window.scrollY - h - 12;
+    window.scrollTo({ top: y, behavior: smooth ? "smooth" : "auto" });
+  }
+  document.querySelectorAll('a[href="#showroom"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      history.pushState(null, "", "#showroom");
+      go(true);
+    });
+  });
+  if (location.hash === "#showroom") {
+    window.addEventListener("load", function () { go(false); });
+  }
+})();
+
+// Showroom lightbox: same-page zoomed view with prev/next, swipe, Escape/backdrop close
+(function () {
+  const links = Array.prototype.slice.call(document.querySelectorAll("#showroomStrip .showroom-photo"));
+  if (!links.length) return;
+  const items = links.map(function (a) { const im = a.querySelector("img"); return { src: a.getAttribute("href"), alt: im ? im.alt : "" }; });
+  const lb = document.createElement("div");
+  lb.className = "lb"; lb.hidden = true;
+  lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "Showroom photo viewer");
+  lb.innerHTML = '<figure class="lb-figure"><img class="lb-img" alt="" /><figcaption class="lb-cap"><span class="lb-count"></span><span class="lb-text"></span></figcaption></figure>' +
+    '<button type="button" class="lb-btn lb-prev" aria-label="Previous photo">&#8249;</button>' +
+    '<button type="button" class="lb-btn lb-next" aria-label="Next photo">&#8250;</button>' +
+    '<button type="button" class="lb-btn lb-close" aria-label="Close photo viewer">&times;</button>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector(".lb-img"), count = lb.querySelector(".lb-count"), text = lb.querySelector(".lb-text");
+  const btnPrev = lb.querySelector(".lb-prev"), btnNext = lb.querySelector(".lb-next"), btnClose = lb.querySelector(".lb-close");
+  let idx = 0, lastFocus = null;
+  function show(i) {
+    idx = (i + items.length) % items.length;
+    img.src = items[idx].src; img.alt = items[idx].alt;
+    count.textContent = (idx + 1) + " / " + items.length; text.textContent = items[idx].alt;
+    [idx - 1, idx + 1].forEach(function (j) { new Image().src = items[(j + items.length) % items.length].src; });
+  }
+  function open(i) {
+    lastFocus = document.activeElement; show(i);
+    lb.hidden = false; document.body.classList.add("lb-lock");
+    requestAnimationFrame(function () { lb.classList.add("is-open"); });
+    btnClose.focus();
+  }
+  function close() {
+    lb.classList.remove("is-open"); lb.hidden = true; document.body.classList.remove("lb-lock");
+    img.removeAttribute("src"); if (lastFocus) lastFocus.focus();
+  }
+  links.forEach(function (a, i) {
+    a.removeAttribute("target");
+    a.setAttribute("aria-label", "View larger: " + items[i].alt);
+    a.addEventListener("click", function (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); open(i); });
+  });
+  btnPrev.addEventListener("click", function () { show(idx - 1); });
+  btnNext.addEventListener("click", function () { show(idx + 1); });
+  btnClose.addEventListener("click", close);
+  lb.addEventListener("click", function (e) { if (e.target === lb || e.target.classList.contains("lb-figure")) close(); });
+  document.addEventListener("keydown", function (e) {
+    if (lb.hidden) return;
+    if (e.key === "Escape") { e.preventDefault(); close(); }
+    else if (e.key === "ArrowLeft") show(idx - 1);
+    else if (e.key === "ArrowRight") show(idx + 1);
+    else if (e.key === "Tab") {
+      const f = [btnPrev, btnNext, btnClose], k = f.indexOf(document.activeElement);
+      e.preventDefault(); f[(k + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+    }
+  });
+  let sx = 0, sy = 0, tracking = false;
+  lb.addEventListener("touchstart", function (e) { if (e.touches.length !== 1) { tracking = false; return; } tracking = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  lb.addEventListener("touchend", function (e) {
+    if (!tracking) return; tracking = false;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+})();

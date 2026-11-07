@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://sulcascarpets.com/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://www.sulcascarpets.com/</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://sulcascarpets.com/images/hero-2.jpg</image:loc></image:image>
-    <image:image><image:loc>https://sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
-    <image:image><image:loc>https://sulcascarpets.com/images/logo-sulcas.png</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/hero-2.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/logo-sulcas.png</image:loc></image:image>
   </url>
   <url>
-    <loc>https://sulcascarpets.com/flooring.html</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://www.sulcascarpets.com/flooring</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <image:image><image:loc>https://sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
-    <image:image><image:loc>https://sulcascarpets.com/images/gallery-01.jpg</image:loc></image:image>
-    <image:image><image:loc>https://sulcascarpets.com/images/fb-01.jpg</image:loc></image:image>
-    <image:image><image:loc>https://sulcascarpets.com/images/gallery-06.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/hero-1.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/gallery-01.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/fb-01.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.sulcascarpets.com/images/gallery-06.jpg</image:loc></image:image>
   </url>
 </urlset>

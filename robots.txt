@@ -1,9 +1,10 @@
-# robots.txt for https://sulcascarpets.com/
-# Crawling is allowed. While the site is on temporary github.io / pages.dev
-# addresses, indexing is blocked by the <meta name="robots" content="noindex">
-# tag in index.html (remove it once sulcascarpets.com is connected).
+# robots.txt for https://www.sulcascarpets.com/
+# Indexing allowed now that the custom domain is live.
+
 User-agent: *
 Allow: /
-# Disallow: /
 
-Sitemap: https://sulcascarpets.com/sitemap.xml
+Sitemap: https://www.sulcascarpets.com/sitemap.xml
+
+# AI crawlers and agents are welcome; none are blocked.
+# Agent summary: https://www.sulcascarpets.com/llms.txt
