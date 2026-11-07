@@ -1,16 +1,12 @@
 /* ============================================================
-   Estimate form settings (FormSubmit)
+   Estimate form settings (Web3Forms)
    ============================================================ */
 
-// Recipient: an email address OR the random-string alias FormSubmit gives you after
-// activation (e.g. "a1b2c3d4e5f6..."). Paste the alias here once you have it.
-// Switch to Cain's email/alias at handoff (that needs one new activation).
-const FORM_RECIPIENT = "zewdoo9@gmail.com";
-
-// Page URL sent as FormSubmit's `_url`, so pages.dev, preview hosts, and www share one form.
-// FormSubmit can treat a new URL as a new form and email FORM_RECIPIENT an activation link.
-// This is already the live site. Leave it alone unless a new activation is intended.
-const FORM_SITE_URL = "https://www.sulcascarpets.com/";
+// Public access key from the Web3Forms account. Their docs say this value is
+// safe in client-side code. The account that created the key chooses the inbox.
+// Do not put a recipient address in this file.
+const WEB3FORMS_ACCESS_KEY = "478cfc0f-cbb5-4e06-924c-c156ea3610cc";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 /* Deploy-hash preview hosts (e.g. 68deee40.sulcas-carpets.pages.dev) -> main Pages host */
 (function () {
@@ -25,7 +21,7 @@ const FORM_SITE_URL = "https://www.sulcascarpets.com/";
 
   const navToggle = document.getElementById("navToggle");
   const mobileNav = document.getElementById("mobileNav");
-  // Binds the shared FormSubmit flow to each estimate form that exists on the page (currently only #estimateForm in #contact).
+  // Binds the shared Web3Forms flow to each estimate form (currently only #estimateForm in #contact).
   const forms = document.querySelectorAll("form.js-estimate-form");
   const toast = document.getElementById("toast");
   let toastTimer;
@@ -52,7 +48,7 @@ const FORM_SITE_URL = "https://www.sulcascarpets.com/";
     });
   }
 
-  /* Estimate form: sends via FormSubmit AJAX to FORM_RECIPIENT */
+  /* Estimate form: Web3Forms AJAX. Inbox is the account that owns the access key. */
   const SUCCESS_MSG = "Thanks! We received your request and will contact you soon.";
   const ERROR_MSG = "Something went wrong — please call (916) 686-1704.";
 
@@ -62,9 +58,11 @@ const FORM_SITE_URL = "https://www.sulcascarpets.com/";
     const submitBtn = form.querySelector('button[type="submit"]');
     const submitLabel = submitBtn ? submitBtn.textContent : "";
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let sending = false;
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (sending) return;
 
       const required = form.querySelectorAll("[required]");
       let valid = true;
@@ -89,40 +87,50 @@ const FORM_SITE_URL = "https://www.sulcascarpets.com/";
         return el ? String(el.value || "").trim() : "";
       };
 
-      // Honeypot: bots fill hidden fields, real visitors never see it. Pretend success, send nothing.
-      if (val("_honey")) {
+      // Honeypots: a filled text field or a checked botcheck means a bot.
+      // Answer like a success and send nothing. Real visitors never see these.
+      const bot = form.elements.botcheck;
+      if (val("_honey") || (bot && bot.checked)) {
         showToast(SUCCESS_MSG, false);
         form.reset();
         return;
       }
 
+      const email = val("email");
       const payload = {
+        access_key: WEB3FORMS_ACCESS_KEY,
         name: val("name"),
+        email: email,
         phone: val("phone"),
-        email: val("email"), // FormSubmit uses this as the reply-to address
-        project: val("project"),
+        service: val("project"),
         message: val("message"),
-        _subject: "New estimate request — Sulca's Carpets website",
-        _template: "table",
-        _captcha: "false",
-        _url: FORM_SITE_URL // fixed form identity for FormSubmit (instead of whatever Referer the host sends)
+        subject: "New estimate request — Sulca's Carpets website",
+        from_name: "Sulca's Carpets website",
+        replyto: email
       };
 
+      sending = true;
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = "Sending…";
       }
 
-      fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_RECIPIENT), {
+      fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        referrerPolicy: "strict-origin-when-cross-origin", // never blank, never includes ?query strings
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
         body: JSON.stringify(payload)
       })
         .then(function (res) {
           return res.json().catch(function () { return {}; }).then(function (data) {
-            const ok = res.ok && (data.success === true || data.success === "true");
-            if (!ok) throw new Error((data && data.message) || "Request failed");
+            // Web3Forms uses a boolean. The string "true" is not acceptance.
+            const ok = res.ok && data && data.success === true;
+            if (!ok) {
+              const nested = data && data.body && data.body.message;
+              throw new Error((data && data.message) || nested || "Request failed");
+            }
             return data;
           });
         })
@@ -134,6 +142,7 @@ const FORM_SITE_URL = "https://www.sulcascarpets.com/";
           showToast(ERROR_MSG, true);
         })
         .finally(function () {
+          sending = false;
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = submitLabel;

@@ -4,7 +4,7 @@
  *
  * Run: node tests/estimate-form.test.mjs
  *
- * Fetch is mocked in the page. Nothing is sent to FormSubmit or to any inbox.
+ * Fetch is mocked in the page. Nothing is sent to Web3Forms or to any inbox.
  */
 import { spawn } from "node:child_process";
 import { once } from "node:events";
@@ -16,8 +16,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SUCCESS = "Thanks! We received your request and will contact you soon.";
 const ERROR = "Something went wrong — please call (916) 686-1704.";
-const RECIPIENT = "zewdoo9@gmail.com";
-const SITE_URL = "https://www.sulcascarpets.com/";
+const ACCESS_KEY = "478cfc0f-cbb5-4e06-924c-c156ea3610cc";
+const ENDPOINT = "https://api.web3forms.com/submit";
 
 const failures = [];
 let passed = 0;
@@ -35,11 +35,12 @@ function staticChecks() {
   const index = read("index.html");
   const flooring = read("flooring.html");
 
-  check("recipient stays Eddie's test inbox", script.includes('const FORM_RECIPIENT = "zewdoo9@gmail.com"'));
-  check("form identity URL is the live www site", script.includes('const FORM_SITE_URL = "https://www.sulcascarpets.com/"'));
-  check("ajax endpoint uses that recipient", script.includes("formsubmit.co/ajax/"));
-  check("success requires boolean true or the string true", /data\.success === true \|\| data\.success === "true"/.test(script));
+  check("public Web3Forms access key is the one Eddie supplied", script.includes('const WEB3FORMS_ACCESS_KEY = "' + ACCESS_KEY + '"'));
+  check("posts to the Web3Forms submit endpoint", script.includes('const WEB3FORMS_ENDPOINT = "' + ENDPOINT + '"'));
+  check("FormSubmit is gone from the page script", !script.includes("formsubmit.co") && !script.includes("zewdoo9"));
+  check("success requires the Web3Forms boolean true", /data\.success === true/.test(script) && !script.includes('data.success === "true"'));
   check("form is cleared only after the accepted branch", (script.match(/form\.reset\(\)/g) || []).length === 2);
+  check("pages cache-bust the new script", index.includes("script.js?v=w3f1") && flooring.includes("script.js?v=w3f1"));
   check("homepage has one estimate form", index.match(/js-estimate-form/g).length === 1);
   check("homepage includes the toast and script", index.includes('id="toast"') && index.includes("script.js"));
   check("flooring page does not post its own estimate form", !flooring.includes("js-estimate-form"));
@@ -237,6 +238,7 @@ async function pageSuite() {
     form.elements.project.value = "Carpet";
     form.elements.message.value = "testing";
     form.elements._honey.value = "";
+    if (form.elements.botcheck) form.elements.botcheck.checked = false;
     if (extra) extra();
   }
   function snapshot() {
@@ -285,65 +287,91 @@ async function pageSuite() {
   check("bad email is marked invalid", form.elements.email.classList.contains("is-invalid"));
   check("bad email keeps what was typed", form.elements.email.value === "not-an-email" && form.elements.message.value === "testing");
 
-  // Honeypot: pretend success to the bot and do not transmit.
+  // Honeypots: pretend success to the bot and do not transmit.
   fill(() => { form.elements._honey.value = "http://spam.example"; });
   sent = await submit();
-  check("honeypot does not call the provider", sent.length === 0);
+  check("text honeypot does not call the provider", sent.length === 0);
   let state = toastState();
-  check("honeypot does not show the error toast", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
+  check("text honeypot does not show the error toast", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
 
-  // Provider accepts with the string "true" (FormSubmit's actual JSON).
-  fill();
-  responder = () => jsonResponse(200, { success: "true", message: "The form was submitted successfully." });
+  fill(() => { form.elements.botcheck.checked = true; });
   sent = await submit();
+  check("checked botcheck does not call the provider", sent.length === 0);
   state = toastState();
-  check("string success shows the thank-you", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
-  check("string success clears the form", snapshot().message === "" && snapshot().name === "" && snapshot().project === "");
-  check("string success posts once to FormSubmit", sent.length === 1 && sent[0].method === "POST");
-  check(
-    "request keeps Eddie's test recipient",
-    sent[0] && sent[0].url === "https://formsubmit.co/ajax/" + encodeURIComponent("zewdoo9@gmail.com"),
-    sent[0] && sent[0].url
-  );
-  const payload = sent[0] ? JSON.parse(sent[0].body) : {};
-  check("payload keeps the visitor's fields", payload.name === "Ada Test" && payload.phone === "9165550100" && payload.email === "ada@example.com" && payload.project === "Carpet" && payload.message === "testing");
-  check("payload keeps the fixed site URL and captcha flag", payload._url === "https://www.sulcascarpets.com/" && payload._captcha === "false");
-  check("payload does not retarget the business inbox", !JSON.stringify(payload).includes("customfloors") && !(sent[0] && sent[0].url.includes("customfloors")));
-  check("button is usable again after success", !button.disabled && button.textContent === "Send request", button.textContent);
+  check("checked botcheck does not show the error toast", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
 
-  // Boolean true is also acceptance. String "false" is not, even though it is truthy.
+  // Official Web3Forms acceptance is boolean true on an OK response.
   fill();
-  responder = () => jsonResponse(200, { success: true });
+  responder = () => jsonResponse(200, {
+    success: true,
+    body: { message: "Email sent successfully!", data: { name: "Ada Test" } },
+  });
   sent = await submit();
   state = toastState();
   check("boolean success shows the thank-you", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
-  check("boolean success clears the form", snapshot().email === "");
+  check("boolean success clears the form", snapshot().message === "" && snapshot().name === "" && snapshot().project === "" && snapshot().email === "");
+  check("boolean success posts once", sent.length === 1 && sent[0].method === "POST", JSON.stringify(sent));
+  check("request goes to Web3Forms", sent[0] && sent[0].url === "https://api.web3forms.com/submit", sent[0] && sent[0].url);
+  const payload = sent[0] ? JSON.parse(sent[0].body) : {};
+  check("payload maps name, email, phone, service, and message", payload.name === "Ada Test" && payload.email === "ada@example.com" && payload.phone === "9165550100" && payload.service === "Carpet" && payload.message === "testing", JSON.stringify(payload));
+  check("payload sets the visitor as reply-to", payload.replyto === "ada@example.com");
+  check("payload has a site subject and from name", payload.subject === "New estimate request — Sulca's Carpets website" && payload.from_name === "Sulca's Carpets website");
+  check("payload uses only the public access key", payload.access_key === "478cfc0f-cbb5-4e06-924c-c156ea3610cc");
+  check("payload does not name an inbox or a second provider", !JSON.stringify(payload).includes("customfloors") && !JSON.stringify(payload).includes("zewdoo9") && !("ccemail" in payload) && !("webhook" in payload) && !("redirect" in payload));
+  check("button is usable again after success", !button.disabled && button.textContent === "Send request", button.textContent);
+
+  // The string "true" is not Web3Forms' boolean, and must not clear the form.
+  fill();
+  const keptString = snapshot();
+  responder = () => jsonResponse(200, { success: "true", message: "Email sent successfully!" });
+  sent = await submit();
+  state = toastState();
+  check("string true is not treated as success", state.visible && state.error && state.text === ERROR, JSON.stringify(state));
+  check("string true keeps every field", fieldsKept(keptString), JSON.stringify(snapshot()));
+  check("string true still contacted the provider once", sent.length === 1);
 
   fill();
   const keptFalse = snapshot();
-  responder = () => jsonResponse(200, { success: "false", message: "This form needs Activation. An Activate Form link will be actived." });
+  responder = () => jsonResponse(400, { success: false, body: { message: "This domain is not allowed." } });
   sent = await submit();
   state = toastState();
-  check("string false is not treated as success", state.visible && state.error && state.text === ERROR, JSON.stringify(state));
-  check("activation refusal keeps every field", fieldsKept(keptFalse), JSON.stringify(snapshot()));
-  check("activation refusal still contacted the provider once", sent.length === 1);
-  check("button is usable again after a provider refusal", !button.disabled && button.textContent === "Send request", button.textContent);
+  check("provider error keeps the error toast", state.visible && state.error && state.text === ERROR, JSON.stringify(state));
+  check("provider error keeps every field", fieldsKept(keptFalse), JSON.stringify(snapshot()));
+  check("provider error contacted the provider once", sent.length === 1);
+  check("button is usable again after a provider error", !button.disabled && button.textContent === "Send request", button.textContent);
 
   // A friendly message must not override success:false.
   fill();
   const keptMessage = snapshot();
-  responder = () => jsonResponse(200, { success: "false", message: SUCCESS });
+  responder = () => jsonResponse(200, { success: false, message: SUCCESS });
   await submit();
   state = toastState();
-  check("a thank-you string inside an error body is still an error", state.error && state.text === ERROR && fieldsKept(keptMessage), JSON.stringify(state));
+  check("boolean false with a thank-you message is still an error", state.error && state.text === ERROR && fieldsKept(keptMessage), JSON.stringify(state));
+
+  // A second submit while the first request is open must not send twice.
+  fill();
+  let release;
+  responder = () => new Promise((resolve) => { release = resolve; });
+  const beforeDup = calls.length;
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await new Promise((r) => setTimeout(r, 0));
+  check("in-flight submit sends one request", calls.length === beforeDup + 1, String(calls.length - beforeDup));
+  check("button stays disabled while the request is open", button.disabled && button.textContent === "Sending…", button.textContent);
+  release(jsonResponse(200, { success: true }));
+  await new Promise((r) => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
+  state = toastState();
+  check("the single in-flight request can still succeed", state.visible && !state.error && state.text === SUCCESS, JSON.stringify(state));
+  check("button is usable after the in-flight request finishes", !button.disabled && button.textContent === "Send request");
 
   // HTTP 200 with no success flag, and HTTP ok:false even if the flag says true.
   fill();
   const keptEmpty = snapshot();
-  responder = () => jsonResponse(200, { message: "Whoops, looks like something went wrong." });
+  responder = () => jsonResponse(200, { message: "Something went wrong on server." });
   await submit();
   state = toastState();
-  check("HTTP 200 without success true is an error", state.error && state.text === ERROR && fieldsKept(keptEmpty), JSON.stringify(state));
+  check("HTTP 200 without boolean success is an error", state.error && state.text === ERROR && fieldsKept(keptEmpty), JSON.stringify(state));
 
   fill();
   const kept500 = snapshot();
@@ -390,7 +418,7 @@ async function main() {
     for (const item of failures) console.error(" - " + item);
     process.exit(1);
   }
-  console.log("PASSED " + passed + " checks. Success, provider refusal, HTTP 522, and network failure. Recipient " + RECIPIENT + " site " + SITE_URL);
+  console.log("PASSED " + passed + " checks. Web3Forms boolean success, provider error, HTTP 522, network failure, and one in-flight request. Endpoint " + ENDPOINT);
   console.log("Visitor copy locked: success [" + SUCCESS + "] error [" + ERROR + "]");
 }
 
